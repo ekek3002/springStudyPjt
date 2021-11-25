@@ -45,19 +45,6 @@
 					         </form>
                             <button type="button" class="btn btn-default listBtn"><a href='/board/list'>List</a></button>
                             <button type="button" class="btn btn-default modBtn"><a href='/board/modify?bno=<c:out value="${board.bno}"/>'>Modify</a></button>
-					        <script>
-					        var actionForm = $("#actionForm");
-					        $(".listBtn").click(function(e) {
-					    		e.preventDefault();
-					    		actionForm.find("input[name='bno']").remove();
-					    		actionForm.submit();
-							});
-					        $(".modBtn").click(function(e) {
-					    		e.preventDefault();
-					    		actionForm.attr("action", "/board/modify");
-					    		actionForm.submit();
-							});
-					        </script>
                         </div>
                         <!-- /.panel-body -->
                     </div>
@@ -65,4 +52,36 @@
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
+        <script type="text/javascript" src="/resources/js/reply.js"></script>
+        <script type="text/javascript">
+        
+        console.log("=================");
+        console.log("JS TEST");
+        
+        var bnoValue = '<c:out value = "${board.bno}"/>';
+        
+        replyService.add(
+        	{reply:"JS TEST", replyer:"tester", bno : bnoValue},
+        	function(result) {
+				alert("RESULT : " + result)
+			}
+        );
+        
+        
+		</script>
+        <script>
+        $(document).ready(function() {
+	        var actionForm = $("#actionForm");
+	        $(".listBtn").click(function(e) {
+	    		e.preventDefault();
+	    		actionForm.find("input[name='bno']").remove();
+	    		actionForm.submit();
+			});
+	        $(".modBtn").click(function(e) {
+	    		e.preventDefault();
+	    		actionForm.attr("action", "/board/modify");
+	    		actionForm.submit();
+			});
+		});
+        </script>
     <%@include file="../includes/footer.jsp" %>
