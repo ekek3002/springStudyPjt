@@ -47,13 +47,13 @@ public class ReplyServiceImpl implements ReplyService{
 	public List<ReplyVO> getList(Criteria cri, Long bno) {
 		
 		log.info("get Reply List og a Board "+bno);
-		return mapper.getListWithPageing(cri, bno);
+		return mapper.getListWithPaging(cri, bno);
 	}
 
 	@Override
 	public ReplyPageDTO getListPage(Criteria cri, Long bno) {
 		
-		return new ReplyPageDTO(mapper.getCountByBno(bno), mapper.getListWithPageing(cri, bno));
+		return new ReplyPageDTO(mapper.getCountByBno(bno), mapper.getListWithPaging(cri, bno));
 	}
 
 }
