@@ -26,15 +26,15 @@ public class BoardServiceTests {
 		
 		service.getList().forEach(board -> log.info(board));
 	}
-	@Test
-	public void testRegister() {
-		BoardVO vo = new BoardVO();
-		vo.setTitle("AAAtest 테스트");
-		vo.setContent("AAAcentent 테스트");
-		vo.setWriter("tester");
-		
-		long bno = service.register(vo); 
-		
-		log.info("BNO : "+bno);
-	}
+//	@Test
+//	public void testRegister() {
+//		BoardVO vo = new BoardVO();
+//		vo.setTitle("AAAtest 테스트");
+//		vo.setContent("AAAcentent 테스트");
+//		vo.setWriter("tester");
+//		
+//		long bno = service.register(vo); 
+//		
+//		log.info("BNO : "+bno);
+//	}
 }

@@ -49,14 +49,29 @@ public class BoardController {
 		
 	}
 	
+//	@PostMapping("/register")
+//	public String register(BoardVO board, RedirectAttributes rttr) {
+//		log.info("board: "+board);
+//		
+//		long bno = service.register(board);
+//		
+//		log.info("BNO: "+bno);
+//		rttr.addFlashAttribute("result", bno);
+//		
+//		return "redirect:/board/list";
+//	}
 	@PostMapping("/register")
 	public String register(BoardVO board, RedirectAttributes rttr) {
-		log.info("board: "+board);
+		log.info("=====================================");
+		log.info("register: "+board);
 		
-		long bno = service.register(board);
+		if (board.getAttachList() != null) {
+			board.getAttachList().forEach(attach -> log.info(attach));
+		}
 		
-		log.info("BNO: "+bno);
-		rttr.addFlashAttribute("result", bno);
+		log.info("=====================================");
+		service.register(board);
+		rttr.addFlashAttribute("result", board.getBno());
 		
 		return "redirect:/board/list";
 	}
