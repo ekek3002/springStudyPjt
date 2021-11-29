@@ -2,6 +2,9 @@ package org.zerock.controller;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,8 +12,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import javax.xml.ws.spi.http.HttpHandler;
-
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +23,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zerock.domain.AttachFileDTO;
@@ -213,4 +217,105 @@ public class UploadController {
 		}
 		return result;
 	}
+	
+//	@GetMapping(value = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+//	@ResponseBody
+//	public ResponseEntity<Resource> downloadFile(@RequestHeader("User-Agent") String userAgent, String fileName){
+//		log.info("download file: "+fileName);
+//		Resource resource = new FileSystemResource("/Users/yellowin/workspace/study/spring/upload/"+fileName);
+//		log.info("resource: "+resource);
+//		
+//		if (resource.exists() == false) {
+//			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//		}
+//		
+//		String resourceName = resource.getFilename();
+//		HttpHeaders headers = new HttpHeaders();
+//		
+//		try {
+//			String downloadName = null;
+//			if (userAgent.contains("Trident")) {
+//				log.info("IE browser");
+//				
+//				downloadName = URLEncoder.encode(resourceName, "UTF-8").replaceAll("\\+", "");
+//			} else if (userAgent.contains("Edge")) {
+//				log.info("Edge browser");
+//				downloadName = URLEncoder.encode(resourceName, "UTF-8");
+//				log.info("Edge name : "+downloadName);
+//			} else {
+//				log.info("Chrome browser");
+//				downloadName = new String(resourceName.getBytes("UTF-8"),"ISO-8859-1");
+//			}
+//			headers.add("Content-Disposition", "attachment; filename="+downloadName);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return new ResponseEntity<Resource>(resource, headers, HttpStatus.OK);
+//	}
+	@GetMapping(value = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	@ResponseBody
+	public ResponseEntity<Resource> downloadFile(@RequestHeader("User-Agent") String userAgent, String fileName){
+		log.info("download file: "+fileName);
+		Resource resource = new FileSystemResource("/Users/yellowin/workspace/study/spring/upload/"+fileName);
+		log.info("resource: "+resource);
+		
+		if (resource.exists() == false) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		String resourceName = resource.getFilename();
+		
+		//remove uuid
+		String resourceOriginalName = resourceName.substring(resourceName.indexOf("_")+1);
+		
+		HttpHeaders headers = new HttpHeaders();
+		
+		try {
+			String downloadName = null;
+			if (userAgent.contains("Trident")) {
+				log.info("IE browser");
+				
+				downloadName = URLEncoder.encode(resourceOriginalName, "UTF-8").replaceAll("\\+", "");
+			} else if (userAgent.contains("Edge")) {
+				log.info("Edge browser");
+				downloadName = URLEncoder.encode(resourceOriginalName, "UTF-8");
+				log.info("Edge name : "+downloadName);
+			} else {
+				log.info("Chrome browser");
+				downloadName = new String(resourceOriginalName.getBytes("UTF-8"),"ISO-8859-1");
+			}
+			
+			log.info("downloadName: "+downloadName);
+			headers.add("Content-Disposition", "attachment; filename="+downloadName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<Resource>(resource, headers, HttpStatus.OK);
+	}
+	
+	@PostMapping("/deleteFile")
+	@ResponseBody
+	public ResponseEntity<String> deleteFile(String fileName, String type){
+		log.info("deleteFile: "+fileName);
+		
+		File file;
+		
+		try {
+			file = new File("/Users/yellowin/workspace/study/spring/upload/"+URLDecoder.decode(fileName,"UTF-8"));
+			
+			file.delete();
+			
+			if (type.equals("image")) {
+				String largeFileName = file.getAbsolutePath().replace("s_", "");
+				log.info("largeFileName: "+largeFileName);
+				file = new File(largeFileName);
+				file.delete();
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<String>("deleted", HttpStatus.OK);
+	}
+	
 }
