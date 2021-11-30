@@ -3,6 +3,7 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
 
 <%@include file="../includes/header.jsp" %>
 <style>
@@ -73,6 +74,7 @@
                         <!-- /.panel-heading -->
                         <div class="panel-body">
                         	<form role="form" action="/board/register" method="post">
+                        		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 	                             <div class="form-group">
 	                                 <label>Title</label>
 	                                 <input class="form-control" name="title">
@@ -83,7 +85,7 @@
 	                             </div>
 	                             <div class="form-group">
 	                                 <label>Writer</label>
-	                                 <input class="form-control" name="writer">
+	                                 <input class="form-control" name="writer" value='<sec:authentication property="principal.username"/>' readonly="readonly">
 	                             </div>
 	                             <button type="submit" class="btn btn-default">Submit Button</button>
 	                             <button type="reset" class="btn btn-default">Reset Button</button>
@@ -132,6 +134,8 @@
             $(".uploadResult ul li").each(function (i, obj) {
                 var jobj = $(obj);
                 console.dir(jobj);
+                console.log("-------------------------");
+                console.log(jobj.data("filename"));
                 
                 str+="<input type='hidden' name='attachList["+i+"].fileName' value='"+jobj.data("filename")+"'>";
                 str+="<input type='hidden' name='attachList["+i+"].uuid' value='"+jobj.data("uuid")+"'>";
@@ -156,6 +160,9 @@
             return true;
         }
 
+        var csrfHeaderName ="${_csrf.headerName}"; 
+        var csrfTokenValue="${_csrf.token}";
+        
         $("input[type='file']").change(function (e) { 
             var formData = new FormData();
             var inputFile = $("input[name='uploadFile']");
@@ -175,6 +182,9 @@
                 data: formData,
                 type: "POST",
                 dataType: "json",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+                },
                 success: function (result) {
                     console.log(result);
 
@@ -183,26 +193,8 @@
                     // $(".uploadDiv").html(cloneObj.html());
                 }
             });   
-            
-            $(".uploadResult").on("click", "button", function (e) {
-                console.log("delete file");
-                var targetFile = $(this).data("file");
-                var type = $(this).data("type");
-
-                var targetLi = $(this).closest("li");
-
-                $.ajax({
-                    type: "POST",
-                    url: "/deleteFile",
-                    data: {fileName: targetFile, type:type},
-                    dataType: "text",
-                    success: function (result) {
-                        console.log(result);
-                        targetLi.remove();
-                    }
-                });
-            });
         });
+        
         function showUploadedResult(uploadResultArr) {
             
             if (!uploadResultArr || uploadResultArr.length == 0) {
@@ -235,6 +227,28 @@
 
             uploadUL.append(str);
         }
+        
+        $(".uploadResult").on("click", "button", function (e) {
+            console.log("delete file");
+            var targetFile = $(this).data("file");
+            var type = $(this).data("type");
+
+            var targetLi = $(this).closest("li");
+
+            $.ajax({
+                type: "POST",
+                url: "/deleteFile",
+                data: {fileName: targetFile, type:type},
+                dataType: "text",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+                },
+                success: function (result) {
+                    console.log(result);
+                    targetLi.remove();
+                }
+            });
+        });
     });
 </script>
     <%@include file="../includes/footer.jsp" %>

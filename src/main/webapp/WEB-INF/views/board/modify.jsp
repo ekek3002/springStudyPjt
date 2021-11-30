@@ -3,7 +3,7 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
 <%@include file="../includes/header.jsp" %>
             <div class="row">
                 <div class="col-lg-12">
@@ -21,6 +21,7 @@
                         <!-- /.panel-heading -->
                         <div class="panel-body">
 	                        <form role="form" action="/board/modify" method="post">
+	                        	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 		                        <input type="hidden" name="pageNum" value='${cri.pageNum}'>
 		                        <input type="hidden" name="amount" value='${cri.amount}'>
                             	<input type="hidden" name="type" value='<c:out value="${cri.type}"/>' />
@@ -41,8 +42,13 @@
 	                                <label>Writer</label>
 	                                <input class="form-control" name="writer"  value="<c:out value="${board.writer}"/>">
 	                            </div>
-	                            <button class="btn btn-default" data-oper="modify">Modify</button>
-	                            <button class="btn btn-danger" data-oper="remove">Remove</button>
+	                           	<sec:authentication property="principal" var="pinfo"/>
+	                           	<sec:authorize access="isAuthenticated()">
+	                           		<c:if test="${pinfo.username eq board.writer }">
+			                            <button class="btn btn-default" data-oper="modify">Modify</button>
+			                            <button class="btn btn-danger" data-oper="remove">Remove</button>
+	                           		</c:if>
+	                           	</sec:authorize>
 	                            <button class="btn btn-info" data-oper="list">List</button>
 	                        </form>
                         </div>
@@ -259,6 +265,8 @@
 						return true;
 					}
 
+					var csrfHeaderName = "${_csrf.headerName}";
+					var csrfTokenValue = "${_csrf.token}";
 					$("input[type='file']").change(function (e) { 
 						var formData = new FormData();
 						var inputFile = $("input[name='uploadFile']");
@@ -278,6 +286,9 @@
 							data: formData,
 							type: "POST",
 							dataType: "json",
+							beforeSend: function (xhr) {
+								xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+							},
 							success: function (result) {
 								console.log(result);
 

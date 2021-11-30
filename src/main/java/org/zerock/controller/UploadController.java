@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
@@ -133,9 +134,73 @@ public class UploadController {
 //	}
 	
 	//AttachFileDTO 반환 구
+//	@PostMapping(value = "/uploadAjaxAction", produces = MediaType.APPLICATION_JSON_VALUE)
+//	@ResponseBody
+//	public ResponseEntity<List<AttachFileDTO>> uploadAjaxActionPost(MultipartFile[] uploadFile) {
+//		log.info("update ajax post........");
+//		
+//		List<AttachFileDTO> list = new ArrayList<>();
+//		String uploadFolder = "/Users/yellowin/workspace/study/spring/upload";
+//		
+//		String uploadFolderPath = getFolder();
+//		//make folder
+//		File uploadPath = new File(uploadFolder, uploadFolderPath);
+//		log.info("upload path: "+uploadPath);
+//		
+//		if (uploadPath.exists() == false) {
+//			uploadPath.mkdirs();
+//		}
+//		// make yyyy/MM/dd folder
+//		
+//		for (MultipartFile multipartFile : uploadFile) {
+//			
+//			log.info("--------------------------------");
+//			log.info("Upload File Name : "+multipartFile.getOriginalFilename());
+//			log.info("Upload File Size: "+multipartFile.getSize());
+//			
+//			AttachFileDTO attachDTO = new AttachFileDTO();
+//			
+//			String uploadFileName = multipartFile.getOriginalFilename();
+//			
+//			uploadFileName = uploadFileName.substring(uploadFileName.lastIndexOf("\\") +1);
+//			log.info("only file name: "+uploadFileName);
+//			attachDTO.setFileName(uploadFileName);
+//			
+//			UUID uuid = UUID.randomUUID();
+//			
+//			uploadFileName = uuid.toString()+"_"+uploadFileName;
+//			
+//			
+//			try {
+//				//File saveFile = new File(uploadFolder, uploadFileName);
+//				File saveFile = new File(uploadPath, uploadFileName);
+//				multipartFile.transferTo(saveFile);
+//				
+//				attachDTO.setUuid(uuid.toString());
+//				attachDTO.setUploadPath(uploadFolderPath);
+//				
+//				//check image type file
+//				if (checkImageType(saveFile)) {
+//					attachDTO.setImage(true);
+//					FileOutputStream thumbnail = new FileOutputStream(new File(uploadPath, "s_" + uploadFileName));
+//					
+//					Thumbnailator.createThumbnail(multipartFile.getInputStream(), thumbnail, 100, 100);
+//					
+//					thumbnail.close();
+//				}
+//				
+//				list.add(attachDTO);
+//			} catch (Exception e) {
+//				log.error(e.getMessage());
+//			}
+//		}
+//		return new ResponseEntity<>(list, HttpStatus.OK);
+//	}
+	//로그인 회원만 업로드 가능하도록 수정
+	@PreAuthorize("isAuthenticated()")
 	@PostMapping(value = "/uploadAjaxAction", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<List<AttachFileDTO>> uploadAjaxActionPost(MultipartFile[] uploadFile) {
+	public ResponseEntity<List<AttachFileDTO>> uploadAjaxPost(MultipartFile[] uploadFile) {
 		log.info("update ajax post........");
 		
 		List<AttachFileDTO> list = new ArrayList<>();
@@ -293,6 +358,7 @@ public class UploadController {
 		return new ResponseEntity<Resource>(resource, headers, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("isAuthenticated()")
 	@PostMapping("/deleteFile")
 	@ResponseBody
 	public ResponseEntity<String> deleteFile(String fileName, String type){
