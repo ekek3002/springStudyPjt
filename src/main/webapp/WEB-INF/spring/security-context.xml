@@ -15,7 +15,8 @@
 		
 		<!-- <security:access-denied-handler error-page="/accessError"/> -->
 		<security:access-denied-handler ref="customAccessDenied"/>
-		<security:form-login/>
+		<!-- <security:form-login/> -->
+		<security:form-login login-page="/customLogin"/>
 		
 	</security:http>
 	
