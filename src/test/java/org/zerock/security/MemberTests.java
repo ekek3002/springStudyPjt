@@ -66,7 +66,7 @@ public class MemberTests {
 	
 	@Test
 	public void testInsertAuth() {
-		String sql = "insert info tbl_member_auth (userid, auth) values(?,?)";
+		String sql = "insert into tbl_member_auth (userid, auth) values (?,?)";
 		
 		for (int i = 0; i < 100; i++) {
 			Connection con = null;
@@ -81,10 +81,10 @@ public class MemberTests {
 					pstmt.setString(2, "ROLE_USER");
 				} else if (i < 90) {
 					pstmt.setString(1, "manager"+i);
-					pstmt.setString(3, "ROLE_MERBER");
+					pstmt.setString(2, "ROLE_MERBER");
 				} else {
 					pstmt.setString(1, "admin"+i);
-					pstmt.setString(3, "ROLE_ADMIN");
+					pstmt.setString(2, "ROLE_ADMIN");
 				}
 				
 				pstmt.executeUpdate();
